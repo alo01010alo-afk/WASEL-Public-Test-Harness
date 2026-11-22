@@ -1,0 +1,8 @@
+{
+  "name": "wasel-public-test-harness",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Public, dependency-free contract checks and safe sample fixtures for WASEL.",
+  "scripts": { "test": "node --test" },
+  "engines": { "node": ">=20" }
+}
