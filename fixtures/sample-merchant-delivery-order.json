@@ -1,0 +1,14 @@
+{
+  "example_only": true,
+  "market": "SY",
+  "currency": "SYP",
+  "order_type": "merchant_delivery",
+  "status": "pending",
+  "items": [
+    { "product_ref": "sample-product-001", "name_snapshot": "Sample item", "quantity": 2, "unit_price_minor": 1500 },
+    { "product_ref": "sample-product-002", "name_snapshot": "Another sample item", "quantity": 1, "unit_price_minor": 2000 }
+  ],
+  "delivery_fee_minor": 1000,
+  "total_minor": 6000,
+  "idempotency_key": "sample-idempotency-key-not-for-production"
+}
