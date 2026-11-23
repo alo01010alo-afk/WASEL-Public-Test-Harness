@@ -30,14 +30,14 @@ function validateOrder(order) {
     errors.push("order must contain at least one item");
   } else {
     for (const [index, item] of order.items.entries()) {
-      if (!item || typeof item !== "object") {
+      if (!item || typeof item !== "object" || Array.isArray(item)) {
         errors.push(`item ${index} must be an object`);
         continue;
       }
-      if (typeof item.product_ref !== "string" || item.product_ref.length === 0) {
+      if (typeof item.product_ref !== "string" || item.product_ref.trim().length === 0) {
         errors.push(`item ${index} has an invalid product reference`);
       }
-      if (typeof item.name_snapshot !== "string" || item.name_snapshot.length === 0) {
+      if (typeof item.name_snapshot !== "string" || item.name_snapshot.trim().length === 0) {
         errors.push(`item ${index} has an invalid name snapshot`);
       }
       if (!Number.isSafeInteger(item.quantity) || item.quantity <= 0) {
@@ -55,15 +55,28 @@ function validateOrder(order) {
     errors.push("total must be a non-negative safe integer");
   }
   if (Array.isArray(order.items) && order.items.length > 0 &&
-      order.items.every(item => item && Number.isSafeInteger(item.quantity) &&
-        item.quantity > 0 && Number.isSafeInteger(item.unit_price_minor) &&
-        item.unit_price_minor >= 0) &&
+      order.items.every(item => item && typeof item === "object" && !Array.isArray(item) &&
+        Number.isSafeInteger(item.quantity) && item.quantity > 0 &&
+        Number.isSafeInteger(item.unit_price_minor) && item.unit_price_minor >= 0) &&
       Number.isSafeInteger(order.delivery_fee_minor) && order.delivery_fee_minor >= 0 &&
-      Number.isSafeInteger(order.total_minor) &&
-      order.total_minor !== order.items.reduce(
-        (sum, item) => sum + item.quantity * item.unit_price_minor, 0
-      ) + order.delivery_fee_minor) {
-    errors.push("total does not equal item subtotal plus delivery fee");
+      Number.isSafeInteger(order.total_minor)) {
+    let subtotal = 0;
+    let subtotalIsSafe = true;
+    for (const item of order.items) {
+      const lineTotal = item.quantity * item.unit_price_minor;
+      if (!Number.isSafeInteger(lineTotal) || !Number.isSafeInteger(subtotal + lineTotal)) {
+        subtotalIsSafe = false;
+        break;
+      }
+      subtotal += lineTotal;
+    }
+    if (!subtotalIsSafe) {
+      errors.push("item subtotal exceeds safe integer range");
+    } else if (!Number.isSafeInteger(subtotal + order.delivery_fee_minor)) {
+      errors.push("order total exceeds safe integer range");
+    } else if (order.total_minor !== subtotal + order.delivery_fee_minor) {
+      errors.push("total does not equal item subtotal plus delivery fee");
+    }
   }
   if (typeof order.idempotency_key !== "string" ||
       !order.idempotency_key.startsWith("sample-") ||
@@ -162,4 +175,48 @@ test("production-looking idempotency keys are rejected in public fixtures", () =
 
 test("non-object input is rejected safely", () => {
   assert.deepEqual(validateOrder(null), ["order must be an object"]);
+});
+
+test("array values are rejected as item objects", () => {
+  const order = cloneSample();
+  order.items[0] = [];
+  assert.ok(validateOrder(order).some(error => error.includes("must be an object")));
+});
+
+test("whitespace-only item references and snapshots are rejected", () => {
+  const order = cloneSample();
+  order.items[0].product_ref = "   ";
+  order.items[0].name_snapshot = "   ";
+  const errors = validateOrder(order);
+  assert.ok(errors.some(error => error.includes("invalid product reference")));
+  assert.ok(errors.some(error => error.includes("invalid name snapshot")));
+});
+
+test("unsafe line-item multiplication is rejected", () => {
+  const order = cloneSample();
+  order.items[0].quantity = Number.MAX_SAFE_INTEGER;
+  order.items[0].unit_price_minor = 2;
+  order.total_minor = Number.MAX_SAFE_INTEGER;
+  assert.ok(validateOrder(order).includes("item subtotal exceeds safe integer range"));
+});
+
+test("unsafe accumulated subtotal is rejected", () => {
+  const order = cloneSample();
+  order.items = [
+    { product_ref: "sample-a", name_snapshot: "A", quantity: 1, unit_price_minor: Number.MAX_SAFE_INTEGER },
+    { product_ref: "sample-b", name_snapshot: "B", quantity: 1, unit_price_minor: 1 }
+  ];
+  order.delivery_fee_minor = 0;
+  order.total_minor = Number.MAX_SAFE_INTEGER;
+  assert.ok(validateOrder(order).includes("item subtotal exceeds safe integer range"));
+});
+
+test("subtotal plus delivery fee must remain a safe integer", () => {
+  const order = cloneSample();
+  order.items = [
+    { product_ref: "sample-a", name_snapshot: "A", quantity: 1, unit_price_minor: Number.MAX_SAFE_INTEGER }
+  ];
+  order.delivery_fee_minor = 1;
+  order.total_minor = Number.MAX_SAFE_INTEGER;
+  assert.ok(validateOrder(order).includes("order total exceeds safe integer range"));
 });
