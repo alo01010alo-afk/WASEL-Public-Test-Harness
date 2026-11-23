@@ -117,3 +117,17 @@ The preferred operating window is **04:00 Ankara time for a read-only check**, f
 - Do not add a scheduled workflow until real health endpoints, staging-vs-production boundaries, notification destination, permissions, and cost are defined. The current public test harness has no verified live WASEL app or backend endpoint, so no wasel-guard.yml is enabled yet.
 
 **Current decision:** Adopt 04:00 checks / 06:00 reporting as the future preferred schedule, but keep production monitoring disabled until its sources and safe read-only access are verified.
+
+
+## 12. Small-slice execution and five-line handoff
+
+At the start of an authorized session, read the project compass and relevant decisions, then verify the current branch, commit, PR state, and changed files. Work on one small independently reviewable slice with explicit acceptance criteria.
+
+- Resolve minor reversible implementation details consistently; stop and ask the founder when ambiguity affects product behavior, money, privacy, security, access, data, availability, cost, or reversibility.
+- Preserve files and existing behavior. Never delete or discard work without explicit approval.
+- Prefer simple code and functional correctness before cosmetic polish. Do not invent unrequested features during release hardening.
+- If a change fails, preserve evidence and state; do not perform speculative repeated fixes or automatic resets/reverts that may discard work.
+- Do not force same-day completion, merge, or publication. Stop at a safe checkpoint if checks are incomplete.
+- After each slice, report five concise lines: (1) built/changed, (2) existing behavior/files changed, (3) deliberately untouched, (4) checks actually run and results, (5) remaining gaps and next safe step.
+- Record durable implementation facts in private project documentation. Public harness documentation must remain public-safe and synthetic-only.
+- The detailed working agreement is maintained in the private application's `docs/WASEL-AI-RULES.md`.
