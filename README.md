@@ -28,6 +28,10 @@ npm test
 
 GitHub Actions runs the same checks on pushes to `main`, pull requests, and manual dispatches.
 
+## Artifact and storage policy
+
+The current workflow is test-only: it does not build APKs, upload workflow artifacts, or configure caches. Do not add APK packaging to this public harness. See [CI artifact and storage policy](docs/ci-artifact-and-storage-policy.md) for the future-build rules and retention guidance.
+
 ## Important limitation
 
 A passing run validates only the synthetic fixtures and generic rules in this repository. It does **not** test or certify the private WASEL application. In particular, it cannot establish real multi-request idempotency, live pricing, cancellation side effects, concurrency safety, payment correctness, authorization, or database transaction behavior.
