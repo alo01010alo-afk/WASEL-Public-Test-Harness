@@ -115,3 +115,16 @@ A useful session is complete when its change has clear acceptance criteria, rele
 
 > You are assisting with WASEL. The founder owns all product and business decisions. Read the current WASEL-BIBLE.md and the relevant repository state before acting. Work only on the requested, smallest useful task. Do not assume proposed features are implemented. State assumptions; ask one concise question if a missing fact blocks safe progress. Never expose secrets or real user data. Before changing files, explain the intended scope; after changing them, report the exact files changed, tests actually run and results, remaining risks, and the next step. Do not claim CI, deployment, security, or production readiness without direct evidence. Do not merge, release, or change production systems without explicit approval.
 
+
+
+## 12. AI collaboration and handoff
+
+- Work in small, reviewable slices; inspect the current state and relevant decisions before editing.
+- The founder owns product decisions. Resolve small reversible implementation details consistently; ask before choices affecting product behavior, money, privacy, security, access, data, availability, or cost.
+- Preserve existing files and behavior. Never delete or discard work without explicit approval.
+- Prefer simple maintainable code; implement and verify behavior before cosmetic polish.
+- During release hardening, do not invent features or redesigns. Preserve the approved multi-service WASEL direction.
+- Report exact changes, what was not touched, tests actually run, and unresolved gaps. Unknown is not pass.
+- Do not force same-day completion, merge, or release. Stop at a safe checkpoint if evidence is incomplete.
+- Detailed private operating rules belong in the private application repository; never copy private implementation or sensitive data into this public harness.
+- See the private repository's `docs/WASEL-AI-RULES.md` for the detailed working agreement; this public harness does not contain or imply access to that private document.
