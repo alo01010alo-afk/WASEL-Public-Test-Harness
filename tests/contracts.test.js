@@ -10,6 +10,13 @@ const allowedCurrencyByMarket = { SY: "SYP", TR: "TRY" };
 const allowedStatuses = new Set([
   "pending", "confirmed", "preparing", "ready", "completed", "cancelled"
 ]);
+const allowedOrderFields = new Set([
+  "example_only", "market", "currency", "order_type", "status", "items",
+  "delivery_fee_minor", "total_minor", "idempotency_key"
+]);
+const allowedItemFields = new Set([
+  "product_ref", "name_snapshot", "quantity", "unit_price_minor"
+]);
 
 // Pure example contract validator. It checks only the supplied synthetic object;
 // it does not call or represent the private WASEL application.
@@ -17,6 +24,9 @@ function validateOrder(order) {
   const errors = [];
   if (!order || typeof order !== "object" || Array.isArray(order)) {
     return ["order must be an object"];
+  }
+  for (const field of Object.keys(order)) {
+    if (!allowedOrderFields.has(field)) errors.push(`unexpected order field: ${field}`);
   }
   if (order.example_only !== true) errors.push("fixture must be explicitly synthetic");
   if (order.order_type !== "merchant_delivery") errors.push("unsupported order type");
@@ -33,6 +43,9 @@ function validateOrder(order) {
       if (!item || typeof item !== "object" || Array.isArray(item)) {
         errors.push(`item ${index} must be an object`);
         continue;
+      }
+      for (const field of Object.keys(item)) {
+        if (!allowedItemFields.has(field)) errors.push(`item ${index} has unexpected field: ${field}`);
       }
       if (typeof item.product_ref !== "string" || item.product_ref.trim().length === 0) {
         errors.push(`item ${index} has an invalid product reference`);
@@ -181,6 +194,18 @@ test("array values are rejected as item objects", () => {
   const order = cloneSample();
   order.items[0] = [];
   assert.ok(validateOrder(order).some(error => error.includes("must be an object")));
+});
+
+test("unexpected top-level fields are rejected to prevent public fixture data leakage", () => {
+  const order = cloneSample();
+  order.customer_email = "sample@example.invalid";
+  assert.ok(validateOrder(order).includes("unexpected order field: customer_email"));
+});
+
+test("unexpected item fields are rejected to keep the public item contract minimal", () => {
+  const order = cloneSample();
+  order.items[0].customer_address = "sample-only";
+  assert.ok(validateOrder(order).includes("item 0 has unexpected field: customer_address"));
 });
 
 test("whitespace-only item references and snapshots are rejected", () => {
