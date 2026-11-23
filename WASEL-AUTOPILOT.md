@@ -102,3 +102,18 @@ This file supplements WASEL-BIBLE.md. If they conflict, follow the stricter safe
 ---
 
 **Core rule:** Observe and report with evidence. Make only small, reversible, explicitly authorized changes. Ask before anything that can affect users, money, access, data, availability, or cost.
+
+## 11. Preferred future check/report window (Ankara time)
+
+The preferred operating window is **04:00 Ankara time for a read-only check**, followed by a **06:00 Ankara-time summary**. This is a scheduling preference, not a claim that monitoring is currently configured.
+
+- Ankara currently uses UTC+03:00 year-round; 04:00 Ankara corresponds to 01:00 UTC, and 06:00 Ankara corresponds to 03:00 UTC. Reconfirm timezone rules if they change.
+- GitHub Actions scheduled runs are best-effort and may be delayed; they are not an exact-time alarm or an uptime SLA.
+- A 04:00 check may only probe configured, real, safe health endpoints and authorized read-only provider data. Do not invent placeholder app URLs, Supabase project URLs, or credentials.
+- A 06:00 report may only summarize the results actually collected by the earlier check. If the check did not run, a connector failed, or a source was unavailable, report that explicitly as **unknown/not checked**.
+- Do not perform automatic repairs, deployment, rollback, database restore, or production changes during the quiet window. Report the issue and wait for founder approval.
+- Do not upload the repository root or arbitrary files as a “log” artifact. Logs must be deliberately generated, minimal, sanitized, and retained only when there is a concrete need. GitHub artifact retention is not a cleanup mechanism for unrelated files.
+- A shell command that prints a usage target does not measure GitHub Actions minutes or provider storage. Exact usage requires an authorized usage/billing source.
+- Do not add a scheduled workflow until real health endpoints, staging-vs-production boundaries, notification destination, permissions, and cost are defined. The current public test harness has no verified live WASEL app or backend endpoint, so no wasel-guard.yml is enabled yet.
+
+**Current decision:** Adopt 04:00 checks / 06:00 reporting as the future preferred schedule, but keep production monitoring disabled until its sources and safe read-only access are verified.
