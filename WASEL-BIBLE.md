@@ -98,3 +98,20 @@ Keep architecture and product decisions dated and explicit. Until a decision is 
 ---
 
 **Safety rule:** If a proposed change requires exposing private code, real personal data, privileged credentials, or unreviewed production configuration in this public repository, stop and redesign it.
+
+## 11. Daily operating rhythm (guidance, not a rigid timetable)
+
+Use a repeatable loop, adapting the hours to the founder's real schedule:
+
+1. **Choose one outcome:** write one sentence describing the smallest user-visible or testable improvement for this session.
+2. **Build one small slice:** ask the AI assistant to inspect the current code and project decisions before proposing or changing anything. Avoid unrelated additions.
+3. **Try realistic failure cases:** test invalid input, cancellation, retries, weak connectivity, and role boundaries where relevant. Record failures instead of hiding them.
+4. **Document the result:** record what changed, the exact tests run and their results, known gaps, and the next smallest step.
+5. **Talk to a real user or merchant when practical:** ask an open question, listen, and record only non-sensitive, consented product feedback. A conversation is learning, not a commitment or proof of future adoption.
+
+A useful session is complete when its change has clear acceptance criteria, relevant checks have been run, and the result is documented. Do not measure progress by lines of code or a fixed number of features. Thirty small changes do not automatically make a complete or production-ready product.
+
+### Reusable AI handoff instruction
+
+> You are assisting with WASEL. The founder owns all product and business decisions. Read the current WASEL-BIBLE.md and the relevant repository state before acting. Work only on the requested, smallest useful task. Do not assume proposed features are implemented. State assumptions; ask one concise question if a missing fact blocks safe progress. Never expose secrets or real user data. Before changing files, explain the intended scope; after changing them, report the exact files changed, tests actually run and results, remaining risks, and the next step. Do not claim CI, deployment, security, or production readiness without direct evidence. Do not merge, release, or change production systems without explicit approval.
+
